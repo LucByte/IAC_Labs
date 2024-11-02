@@ -1,4 +1,4 @@
-#include "Vclktick.h"
+#include "Vf1_delay.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h"
 
@@ -13,17 +13,17 @@ int main(int argc, char **argv, char **env)
 
     Verilated::commandArgs(argc, argv);
     // init top verilog instance
-    Vclktick *top = new Vclktick;
+    Vf1_delay *top = new Vf1_delay;
     // init trace dump
     Verilated::traceEverOn(true);
     VerilatedVcdC *tfp = new VerilatedVcdC;
     top->trace(tfp, 99);
-    tfp->open("clktick.vcd");
+    tfp->open("f1_delay.vcd");
 
     // init Vbuddy
     if (vbdOpen() != 1)
         return (-1);
-    vbdHeader("L3T2:Clktick");
+    vbdHeader("F1 START");
     vbdSetMode(1); // Flag mode set to one-shot
 
     // initialize simulation inputs
@@ -44,10 +44,9 @@ int main(int argc, char **argv, char **env)
         }
 
         // Display toggle neopixel
-        if (top->tick)
+        if (top->en)
         {
-            vbdBar(lights);
-            lights = lights ^ 0xFF;
+            vbdBar(top->data_out & 0xFF);
         }
         // set up input signals of testbench
         top->rst = (simcyc < 2); // assert reset for 1st cycle
